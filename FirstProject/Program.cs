@@ -1,5 +1,7 @@
+using FirstProject.Abstractions.Services;
 using FirstProject.AutoMapper;
 using FirstProject.Contexts;
+using FirstProject.Implementation.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -13,7 +15,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApllicationContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAutoMapper(typeof(MapperProfile));
-
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ISchoolService,  SchoolService>();
 
 var app = builder.Build();
 
