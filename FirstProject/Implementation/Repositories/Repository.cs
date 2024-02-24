@@ -8,9 +8,9 @@ namespace FirstProject.Implementation.Repositories
 {
     public class Repository<T> : IRepository<T> where T : BaseEntity
     {
-        private readonly ApllicationContext _dbContext;
+        private readonly ApplicationContext _dbContext;
 
-        public Repository(ApllicationContext dbContext) 
+        public Repository(ApplicationContext dbContext) 
         { 
             _dbContext = dbContext;
         }
