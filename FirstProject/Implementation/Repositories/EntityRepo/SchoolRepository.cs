@@ -6,7 +6,7 @@ namespace FirstProject.Implementation.Repositories.EntityRepo
 {
     public class SchoolRepository : Repository<School>, ISchoolRepository
     {
-        public SchoolRepository(ApllicationContext dbContext) : base(dbContext)
+        public SchoolRepository(ApplicationContext dbContext) : base(dbContext)
         {
 
         }

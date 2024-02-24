@@ -6,7 +6,7 @@ namespace FirstProject.Implementation.Repositories.EntityRepo
 {
     public class StudentRepository : Repository<Student>, IStudentRepository
     {
-        public StudentRepository(ApllicationContext dbContext) : base(dbContext)
+        public StudentRepository(ApplicationContext dbContext) : base(dbContext)
         {
         }
     }

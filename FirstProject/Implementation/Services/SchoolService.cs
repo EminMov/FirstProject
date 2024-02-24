@@ -11,8 +11,8 @@ namespace FirstProject.Implementation.Services
     public class SchoolService : ISchoolService
     {
         private readonly IMapper _mapper;
-        private ApllicationContext _dbContext; 
-        public SchoolService(IMapper mapper, ApllicationContext context) 
+        private ApplicationContext _dbContext; 
+        public SchoolService(IMapper mapper, ApplicationContext context) 
         { 
             _mapper = mapper;
             _dbContext = context;
