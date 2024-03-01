@@ -10,10 +10,10 @@ namespace FirstProject.Implementation.UnitOfWorks
     {
         private readonly ApplicationContext _dbContext;
         private Dictionary<Type, object> _repositories;
-        public UnitOfWork(ApplicationContext dbContext, Dictionary<Type, object> repositories) 
+        public UnitOfWork(ApplicationContext dbContext) 
         { 
             _dbContext = dbContext;
-            _repositories = repositories;
+            _repositories = new Dictionary<Type, object>();
         }
         public void Dispose()
         {
@@ -22,9 +22,9 @@ namespace FirstProject.Implementation.UnitOfWorks
 
         public IRepository<TEntity> GetRepository<TEntity>() where TEntity : BaseEntity
         {
-            if (_repositories.ContainsKey(typeof(TEntity)))
+            if (_repositories.ContainsKey(typeof(TEntity))) //key
             {
-                return (IRepository<TEntity>)_repositories[typeof(TEntity)];
+                return (IRepository<TEntity>)_repositories[typeof(TEntity)]; //value
             }
             IRepository<TEntity> repository = new Repository<TEntity>(_dbContext);
             _repositories.Add(typeof(TEntity), repository);
