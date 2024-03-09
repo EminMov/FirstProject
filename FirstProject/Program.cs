@@ -11,9 +11,13 @@ using FirstProject.Implementation.Repositories;
 using FirstProject.Implementation.Repositories.EntityRepo;
 using FirstProject.Implementation.Services;
 using FirstProject.Implementation.UnitOfWorks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 using static FirstProject.Entities.Identity.AppUser;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +39,66 @@ builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<ApplicationContext>().AddDefaultTokenProviders();
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new()
+    {
+        ValidateAudience = true,
+        ValidateIssuer = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidAudience = builder.Configuration["Token:Audience"],
+
+        ValidIssuer = builder.Configuration["Token:Issuer"],
+
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Token:SecurityKey"])),
+
+        LifetimeValidator = (notBefore, expires, securityToken, validationParameters) => expires != null ? DateTime.UtcNow : false,
+
+        NameClaimType = ClaimTypes.Name,
+        RoleClaimType = ClaimTypes.Role
+    };
+});
+
+builder.Services.AddSwaggerGen(swagger =>
+{
+    swagger.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Version = "v1",
+        Title = "School Student API",
+        Description = "ASP.Net Core 6 Web API"
+    });
+    swagger.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer Scheme."
+    });
+    swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[]{ }
+        }
+        
+    });
+});
 
 var app = builder.Build();
 
