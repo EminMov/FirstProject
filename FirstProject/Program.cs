@@ -17,8 +17,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog.Events;
+using Serilog.Sinks.MSSqlServer;
+using Serilog;
+using System.Collections.ObjectModel;
+using System.Data;
 using System.Security.Claims;
 using static FirstProject.Entities.Identity.AppUser;
+using Serilog.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,6 +106,33 @@ builder.Services.AddSwaggerGen(swagger =>
     });
 });
 
+Logger? log = new LoggerConfiguration()
+    .WriteTo.Console(Serilog.Events.LogEventLevel.Error)
+    .WriteTo.File("Logs/myJsonLogs.json")
+    .WriteTo.File("Logs/mylogs.txt")
+    .WriteTo.MSSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sinkOptions:
+    new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
+    {
+        TableName = "MySerilog",
+        AutoCreateSqlTable = true
+    },
+
+    null, null, LogEventLevel.Warning, null,
+    columnOptions: new ColumnOptions
+    {
+        AdditionalColumns = new Collection<SqlColumn>
+        {
+            new SqlColumn(columnName:"User_Id",SqlDbType.NVarChar)
+        }
+    },
+    null, null
+    )
+    .Enrich.FromLogContext()
+    .MinimumLevel.Information()
+    .CreateLogger();
+
+Log.Logger = log;
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -113,7 +146,7 @@ app.UseHttpsRedirection();
 
 app.ConfigureExtention();
 
-//app.UseSerilogRequestLogging();
+app.UseSerilogRequestLogging();
 
 app.UseAuthorization();
 
